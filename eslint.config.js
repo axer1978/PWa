@@ -14,7 +14,8 @@ export default defineConfig(
 		'drizzle/',
 		'test-results/',
 		'playwright-report/',
-		'coverage/'
+		'coverage/',
+		'.claude/'
 	]),
 	js.configs.recommended,
 	ts.configs.recommended,

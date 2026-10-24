@@ -1,28 +1,27 @@
 import { readdirSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { accessFor, safeNext, type Access } from '../../src/lib/server/access';
+/// <reference types="vite/client" />
+import { accessFor, safeNext } from '../../src/lib/server/access';
+import type { RouteExpectations } from './access-routes/types';
 
 const ROUTES = resolve(import.meta.dirname, '../../src/routes');
 
 /**
- * Every route and the access level it must have. Adding a route without adding
- * it here fails the first test, so opening something up is always deliberate.
- * Parameterised routes list the concrete paths to check.
+ * Every route and the access level it must have, gathered from
+ * tests/unit/access-routes/*.ts (one file per feature area). Adding a route
+ * without declaring it fails the first test, so opening something up is always
+ * deliberate.
  */
-const EXPECTED: Record<string, { access: Access; paths?: string[] }> = {
-	'/': { access: 'public' },
-	'/pricing': { access: 'public' },
-	'/legal/[doc]': { access: 'public', paths: ['/legal/terms', '/legal/privacy', '/legal/age'] },
-	'/login': { access: 'public' },
-	'/logout': { access: 'public' },
-	'/auth/verify': { access: 'public' },
-	'/unavailable': { access: 'public' },
-	'/healthz': { access: 'public' },
-	'/account': { access: 'auth' },
-	'/verify-age': { access: 'auth' },
-	'/library': { access: 'verified' }
-};
+const modules = import.meta.glob<{ routes: RouteExpectations }>('./access-routes/*.ts', {
+	eager: true
+});
+const EXPECTED: RouteExpectations = Object.assign(
+	{},
+	...Object.entries(modules)
+		.filter(([file]) => !file.endsWith('/types.ts'))
+		.map(([, m]) => m.routes)
+);
 
 function routeIds(dir: string, out: string[] = []): string[] {
 	for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -57,7 +56,8 @@ describe('route access policy', () => {
 
 	it.each([
 		'/api/play/demo-free/clips',
-		'/media/demo-free-intro.opus',
+		'/media/../library',
+		'/media/Demo.opus',
 		'/play/demo-free',
 		'/Library',
 		'/legal/anything-else',
@@ -66,6 +66,14 @@ describe('route access policy', () => {
 		'/totally-new-route'
 	])('defaults to verified for %s (default-deny)', (path) => {
 		expect(accessFor(path)).toBe('verified');
+	});
+
+	it('signed media URLs are authorised by their signature, never by the session alone', () => {
+		expect(accessFor('/media/demo-free-intro.opus')).toBe('signed');
+		expect(accessFor('/media/demo-free-intro.m4a')).toBe('signed');
+		// Anything else under /media stays fully gated.
+		expect(accessFor('/media/demo-free-intro.wav')).toBe('verified');
+		expect(accessFor('/media/sub/dir.opus')).toBe('verified');
 	});
 
 	it('treats build assets as public', () => {

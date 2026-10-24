@@ -2,6 +2,7 @@ import { redirect, type Cookies, type Handle, type RequestEvent } from '@sveltej
 import { accessFor, safeNext } from './access';
 import { SESSION_COOKIE, validateSession, type SessionUser } from './auth/session';
 import type { GeoPolicy } from './config/env-schema';
+import { extendCsp, type CspExtras } from './csp';
 import type { Db } from './db';
 import { isBlocked, resolveCountry, type CountryReader } from './geo';
 
@@ -92,7 +93,9 @@ export type GateDecision =
 /** Pure gate decision for a request; exported for unit tests. */
 export function gateDecision(url: URL, user: SessionUser | null, page: boolean): GateDecision {
 	const access = accessFor(url.pathname);
-	if (access === 'public') return { allow: true };
+	// 'signed' routes (/media) authorise themselves from the URL signature and
+	// re-check the signer's age verification; they answer 403, never redirect.
+	if (access === 'public' || access === 'signed') return { allow: true };
 
 	const next = encodeURIComponent(safeNext(url.pathname + url.search) ?? '/');
 	if (!user) {
@@ -106,6 +109,16 @@ export function gateDecision(url: URL, user: SessionUser | null, page: boolean):
 			: { allow: false, status: 403, message: 'Age verification required.' };
 	}
 	return { allow: true };
+}
+
+/** Appends runtime-configured origins (CDN, hosted payment/AV pages) to SvelteKit's CSP. */
+export function createCspHandle(extras: () => CspExtras): Handle {
+	return async ({ event, resolve }) => {
+		const response = await resolve(event);
+		const csp = response.headers.get('content-security-policy');
+		if (csp) response.headers.set('content-security-policy', extendCsp(csp, extras()));
+		return response;
+	};
 }
 
 export const gateHandle: Handle = async ({ event, resolve }) => {

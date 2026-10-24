@@ -8,3 +8,6 @@ package-lock.json
 /test-results
 /playwright-report
 /coverage
+
+# Claude Code worktrees and local tool state
+.claude/

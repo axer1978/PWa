@@ -81,7 +81,13 @@ describe('gate', () => {
 		['/library', unverified, true, { redirectTo: '/verify-age?next=%2Flibrary' }],
 		['/api/play/x', anon, false, { status: 401 }],
 		['/api/play/x', unverified, false, { status: 403 }],
-		['/media/clip.opus', unverified, false, { status: 403 }]
+		['/api/play/x/clips', unverified, false, { status: 403 }],
+		[
+			'/checkout/monthly',
+			unverified,
+			true,
+			{ redirectTo: '/verify-age?next=%2Fcheckout%2Fmonthly' }
+		]
 	] as const)('%s for %o (page=%s) is denied', (path, user, page, expected) => {
 		const d = gateDecision(new URL(path, 'https://app.test'), user, page);
 		expect(d).toMatchObject({ allow: false, ...expected });
@@ -97,6 +103,17 @@ describe('gate', () => {
 		['/api/play/x', verified]
 	] as const)('%s is allowed for %o', (path, user) => {
 		expect(gateDecision(new URL(path, 'https://app.test'), user, true)).toEqual({ allow: true });
+	});
+
+	it('lets signed media URLs through to the route, which authorises them itself', () => {
+		for (const user of [anon, unverified, verified]) {
+			const d = gateDecision(
+				new URL('/media/demo-free-intro.opus', 'https://app.test'),
+				user,
+				false
+			);
+			expect(d).toEqual({ allow: true });
+		}
 	});
 
 	it('keeps the query string in next', () => {

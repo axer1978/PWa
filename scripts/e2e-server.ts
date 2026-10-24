@@ -26,6 +26,7 @@ const env = {
 	// server and Playwright's readiness probe must agree.
 	HOST: 'localhost',
 	DATABASE_URL: `postgres://postgres:postgres@127.0.0.1:${E2E.dbPort}/postgres?sslmode=disable`,
+	APP_SECRET: 'dev-only-e2e-secret-0123456789abcdef0123456789',
 	EMAIL_TRANSPORT: 'outbox',
 	// Every test signs in from the same IP; the real limit is unit-tested.
 	AUTH_LINKS_PER_IP: '1000',

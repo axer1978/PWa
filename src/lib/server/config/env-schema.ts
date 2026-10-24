@@ -68,7 +68,52 @@ export const envSchema = z
 			.regex(/^[A-Za-z0-9-]+$/)
 			.default('X-Country-Code'),
 		/** MaxMind-format country database (DB-IP Lite works) used when there's no header. */
-		GEOIP_DB_PATH: z.string().min(1).optional()
+		GEOIP_DB_PATH: z.string().min(1).optional(),
+
+		// --- Secrets ---
+		/**
+		 * Root secret for HMAC signatures (local signed media URLs, mock providers).
+		 * Purpose-specific keys are derived from it (crypto.ts deriveKey).
+		 */
+		APP_SECRET: z.string().min(32, 'APP_SECRET must be at least 32 characters'),
+
+		// --- Media delivery ---
+		MEDIA_DIR: z.string().min(1).default('content/audio'),
+		MEDIA_URL_TTL_SECONDS: z.coerce.number().int().min(60).max(3600).default(600),
+		/** Pull zone base URL, e.g. https://example.b-cdn.net (or a custom CDN hostname). */
+		BUNNY_PULL_ZONE_URL: z.url().optional(),
+		/** The pull zone's Token Authentication key. */
+		BUNNY_TOKEN_KEY: z.string().min(8).optional(),
+		/** Folder inside the storage zone that holds the clips, e.g. /audio. */
+		BUNNY_PATH_PREFIX: z
+			.string()
+			.regex(/^(\/[A-Za-z0-9_-]+)*$/, 'a path like /audio, without a trailing slash')
+			.default('/audio'),
+		/** Storage zone credentials: used only by scripts/sync-audio-to-bunny.ts, never by the app. */
+		BUNNY_STORAGE_ZONE: z.string().min(1).optional(),
+		BUNNY_STORAGE_PASSWORD: z.string().min(1).optional(),
+		BUNNY_STORAGE_HOST: z.string().min(1).default('storage.bunnycdn.com'),
+
+		// --- Age verification: Yoti ---
+		YOTI_SDK_ID: z.string().min(1).optional(),
+		YOTI_API_KEY: z.string().min(1).optional(),
+		/** Yoti age verification API base URL. */
+		YOTI_BASE_URL: z.url().default('https://age.yoti.com/api/v1'),
+		/** Yoti hosted age verification page the browser is sent to. */
+		YOTI_HOSTED_URL: z.url().default('https://age.yoti.com'),
+		YOTI_AGE_THRESHOLD: z.coerce.number().int().min(18).max(25).default(18),
+
+		// --- Payments: Verotel FlexPay ---
+		VEROTEL_SHOP_ID: z.string().min(1).optional(),
+		VEROTEL_SIGNATURE_KEY: z.string().min(1).optional(),
+		VEROTEL_BASE_URL: z.url().default('https://secure.verotel.com'),
+
+		// --- Analytics (optional; self-hosted Umami, cookieless) ---
+		UMAMI_WEBSITE_ID: z.uuid().optional(),
+		UMAMI_SCRIPT_PATH: z
+			.string()
+			.regex(/^\/[A-Za-z0-9/_.-]+$/)
+			.default('/stats/script.js')
 	})
 	.superRefine((env, ctx) => {
 		if (!env.DATABASE_URL && !(env.POSTGRES_USER && env.POSTGRES_PASSWORD && env.POSTGRES_DB)) {
@@ -119,7 +164,35 @@ export const envSchema = z
 			});
 		}
 
+		const need = (cond: boolean, keys: (keyof typeof env)[], why: string) => {
+			if (!cond) return;
+			for (const key of keys) {
+				if (!env[key]) {
+					ctx.addIssue({ code: 'custom', path: [key], message: `${key} is required when ${why}` });
+				}
+			}
+		};
+		need(
+			env.STORAGE_DRIVER === 'bunny',
+			['BUNNY_PULL_ZONE_URL', 'BUNNY_TOKEN_KEY'],
+			'STORAGE_DRIVER=bunny'
+		);
+		need(env.AV_PROVIDER === 'yoti', ['YOTI_SDK_ID', 'YOTI_API_KEY'], 'AV_PROVIDER=yoti');
+		need(
+			env.PAYMENT_PROVIDER === 'verotel',
+			['VEROTEL_SHOP_ID', 'VEROTEL_SIGNATURE_KEY'],
+			'PAYMENT_PROVIDER=verotel'
+		);
+
 		if (env.APP_ENV === 'production') {
+			if (env.APP_SECRET.startsWith('dev-only')) {
+				ctx.addIssue({
+					code: 'custom',
+					path: ['APP_SECRET'],
+					message:
+						'APP_SECRET is still the development value; generate one with `openssl rand -base64 48`'
+				});
+			}
 			if (env.BLOCKED_COUNTRIES === undefined) {
 				ctx.addIssue({
 					code: 'custom',

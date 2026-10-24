@@ -9,7 +9,8 @@ const base = {
 	POSTGRES_USER: 'app',
 	POSTGRES_PASSWORD: 'p@ss:word',
 	POSTGRES_DB: 'app',
-	SMTP_URL: 'smtp://mailpit:1025'
+	SMTP_URL: 'smtp://mailpit:1025',
+	APP_SECRET: 'dev-only-0123456789abcdef0123456789abcdef'
 };
 
 const prod = {
@@ -20,7 +21,12 @@ const prod = {
 	PAYMENT_PROVIDER: 'verotel',
 	HSTS_MAX_AGE: '31536000',
 	BLOCKED_COUNTRIES: '',
-	GEO_UNKNOWN_POLICY: 'block'
+	GEO_UNKNOWN_POLICY: 'block',
+	APP_SECRET: 'prod-0123456789abcdef0123456789abcdef0123',
+	YOTI_SDK_ID: 'sdk-id',
+	YOTI_API_KEY: 'api-key',
+	VEROTEL_SHOP_ID: '12345',
+	VEROTEL_SIGNATURE_KEY: 'sig-key'
 };
 
 function issues(source: Record<string, string>): string[] {
@@ -47,7 +53,12 @@ describe('env schema', () => {
 	});
 
 	it('requires a database config', () => {
-		const noDb = { APP_ENV: 'development', ORIGIN: 'https://localhost', SMTP_URL: base.SMTP_URL };
+		const noDb = {
+			APP_ENV: 'development',
+			ORIGIN: 'https://localhost',
+			SMTP_URL: base.SMTP_URL,
+			APP_SECRET: base.APP_SECRET
+		};
 		expect(issues(noDb)).toEqual([expect.stringContaining('DATABASE_URL')]);
 	});
 
@@ -131,6 +142,27 @@ describe('env schema', () => {
 				expect.stringContaining('BLOCKED_COUNTRIES'),
 				expect.stringContaining('GEO_UNKNOWN_POLICY')
 			]);
+		});
+	});
+
+	describe('secrets and provider credentials', () => {
+		it('requires a long APP_SECRET', () => {
+			expect(issues({ ...base, APP_SECRET: 'short' })[0]).toContain('APP_SECRET');
+		});
+
+		it('refuses the development APP_SECRET in production', () => {
+			expect(issues({ ...prod, APP_SECRET: base.APP_SECRET })).toEqual([
+				expect.stringContaining('development value')
+			]);
+		});
+
+		it.each([
+			['STORAGE_DRIVER', 'bunny', ['BUNNY_PULL_ZONE_URL', 'BUNNY_TOKEN_KEY']],
+			['AV_PROVIDER', 'yoti', ['YOTI_SDK_ID', 'YOTI_API_KEY']],
+			['PAYMENT_PROVIDER', 'verotel', ['VEROTEL_SHOP_ID', 'VEROTEL_SIGNATURE_KEY']]
+		])('%s=%s requires its credentials', (key, value, required) => {
+			const found = issues({ ...base, [key]: value });
+			for (const r of required) expect(found.some((i) => i.startsWith(r))).toBe(true);
 		});
 	});
 

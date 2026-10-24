@@ -6,7 +6,9 @@ import { defineConfig, devices } from '@playwright/test';
 // - Self-contained (default): builds the app and starts scripts/e2e-server.ts
 //   (PGlite + file outbox), so it works without Docker.
 const external = process.env.E2E_BASE_URL;
-const baseURL = external ?? 'http://localhost:4173';
+// E2E_APP_PORT lets several worktrees run the self-contained stack side by side.
+const port = process.env.E2E_APP_PORT ?? '4173';
+const baseURL = external ?? `http://localhost:${port}`;
 
 export default defineConfig({
 	testDir: 'e2e',
