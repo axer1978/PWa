@@ -1,0 +1,30 @@
+{
+	"id": "trapped-cycle",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "pick",
+	"state": { "level": 1 },
+	"nodes": [
+		{
+			"id": "pick",
+			"type": "choice",
+			"clipId": "fx-pick",
+			"options": [
+				{ "label": "Path A", "target": "spin-1" },
+				{ "label": "Path B", "target": "outro" }
+			]
+		},
+		{ "id": "spin-1", "type": "play", "clipId": "fx-spin", "next": "spin-2" },
+		{
+			"id": "spin-2",
+			"type": "play",
+			"clipId": "fx-spin",
+			"next": [
+				{ "when": { "key": "level", "op": "gte", "value": 5 }, "target": "outro" },
+				{ "target": "spin-1" }
+			]
+		},
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}

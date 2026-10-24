@@ -1,0 +1,57 @@
+{
+	"$schema": "./session.schema.json",
+	"id": "demo-free",
+	"version": 1,
+	"title": "Demo session 1",
+	"summary": "Placeholder session with test tones. Free; uses every node type.",
+	"access": "free",
+	"start": "intro",
+	"state": { "pace": "slow", "intensity": 1 },
+	"nodes": [
+		{ "id": "intro", "type": "play", "clipId": "demo-free-intro", "next": "hub" },
+		{
+			"id": "hub",
+			"type": "choice",
+			"clipId": "demo-free-hub",
+			"timeoutMs": 30000,
+			"defaultTarget": "wrap",
+			"options": [
+				{ "label": "Path A", "target": "a-timer", "set": { "pace": "slow", "intensity": 1 } },
+				{ "label": "Path B", "target": "b-loop", "set": { "pace": "fast", "intensity": 2 } },
+				{ "label": "Finish", "target": "wrap" }
+			]
+		},
+		{
+			"id": "a-timer",
+			"type": "timer",
+			"clipId": "demo-free-a-timer",
+			"timeoutMs": 8000,
+			"defaultTarget": "a-waited",
+			"next": "a-tapped"
+		},
+		{ "id": "a-tapped", "type": "play", "clipId": "demo-free-a-tapped", "next": "hub" },
+		{ "id": "a-waited", "type": "play", "clipId": "demo-free-a-waited", "next": "hub" },
+		{ "id": "b-loop", "type": "loop", "clipId": "demo-free-b-loop", "next": "b-after" },
+		{
+			"id": "b-after",
+			"type": "play",
+			"clipId": "demo-free-b-after",
+			"next": [
+				{ "when": { "key": "intensity", "op": "gte", "value": 2 }, "target": "b-high" },
+				{ "target": "hub" }
+			]
+		},
+		{ "id": "b-high", "type": "play", "clipId": "demo-free-b-high", "next": "hub" },
+		{
+			"id": "wrap",
+			"type": "play",
+			"clipId": "demo-free-wrap",
+			"next": [
+				{ "when": { "key": "pace", "op": "eq", "value": "fast" }, "target": "outro-fast" },
+				{ "target": "outro" }
+			]
+		},
+		{ "id": "outro", "type": "end", "clipId": "demo-free-outro" },
+		{ "id": "outro-fast", "type": "end", "clipId": "demo-free-outro-fast" }
+	]
+}

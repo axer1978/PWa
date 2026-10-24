@@ -1,0 +1,89 @@
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Banned vendors
+        run: npm run check:banned
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Session JSON Schema is up to date
+        run: npx tsx scripts/emit-session-schema.ts --check
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - name: Generate placeholder audio
+        run: npm run audio:placeholder
+      - name: Check generated audio format
+        run: |
+          set -euo pipefail
+          for f in content/audio/*.opus content/audio/*.m4a; do
+            info=$(ffprobe -v error -select_streams a:0 \
+              -show_entries stream=codec_name,channels,sample_rate -of csv=p=0 "$f")
+            case "$f:$info" in
+              *.opus:opus,48000,1 | *.m4a:aac,48000,1) ;;
+              *) echo "unexpected format for $f: $info"; exit 1 ;;
+            esac
+          done
+          echo "all clips are mono 48 kHz Opus/AAC"
+      - name: Validate sessions
+        run: npm run validate:sessions
+      - name: Build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+      # Self-contained stack (PGlite + file outbox). Phase 6 adds a run against
+      # the real compose stack (Postgres 16, Mailpit, Caddy).
+      - name: E2E (mobile Safari + mobile Chrome)
+        run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  image:
+    runs-on: ubuntu-24.04
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build app image
+        run: docker build -f infra/Dockerfile -t pwa-audio:ci .
+      - name: Validate compose config
+        run: cp .env.example .env && docker compose config --quiet

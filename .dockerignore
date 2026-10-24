@@ -1,0 +1,15 @@
+.git
+node_modules
+build
+.svelte-kit
+.env
+.env.*
+!.env.example
+content/audio
+data/geoip
+backups
+test-results
+playwright-report
+blob-report
+coverage
+infra/restore-test/.work

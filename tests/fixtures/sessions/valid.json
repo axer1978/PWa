@@ -1,0 +1,48 @@
+{
+	"id": "valid",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "intro",
+	"state": { "mode": "a", "level": 1 },
+	"nodes": [
+		{ "id": "intro", "type": "play", "clipId": "fx-intro", "next": "hub" },
+		{
+			"id": "hub",
+			"type": "choice",
+			"clipId": "fx-hub",
+			"timeoutMs": 20000,
+			"defaultTarget": "outro",
+			"options": [
+				{ "label": "Path A", "target": "spin", "set": { "level": 2 } },
+				{ "label": "Path B", "target": "hold", "set": { "mode": "b" } },
+				{ "label": "Finish", "target": "outro" }
+			]
+		},
+		{
+			"id": "spin",
+			"type": "timer",
+			"clipId": "fx-spin",
+			"timeoutMs": 5000,
+			"defaultTarget": "outro",
+			"next": "spin-again"
+		},
+		{
+			"id": "spin-again",
+			"type": "play",
+			"clipId": "fx-spin",
+			"next": [
+				{
+					"when": [
+						{ "key": "level", "op": "gte", "value": 2 },
+						{ "key": "mode", "op": "eq", "value": "a" }
+					],
+					"target": "spin"
+				},
+				{ "target": "hub" }
+			]
+		},
+		{ "id": "hold", "type": "loop", "clipId": "fx-hold", "next": "hub" },
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}

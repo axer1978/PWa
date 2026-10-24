@@ -1,0 +1,927 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": "string"
+		},
+		"id": {
+			"type": "string",
+			"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+		},
+		"version": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 9007199254740991
+		},
+		"title": {
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 80
+		},
+		"summary": {
+			"type": "string",
+			"maxLength": 280
+		},
+		"access": {
+			"type": "string",
+			"enum": [
+				"free",
+				"paid"
+			]
+		},
+		"start": {
+			"type": "string",
+			"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+		},
+		"state": {
+			"default": {},
+			"type": "object",
+			"propertyNames": {
+				"type": "string",
+				"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+			},
+			"additionalProperties": {
+				"anyOf": [
+					{
+						"type": "string",
+						"maxLength": 64
+					},
+					{
+						"type": "number"
+					},
+					{
+						"type": "boolean"
+					}
+				]
+			}
+		},
+		"nodes": {
+			"minItems": 1,
+			"type": "array",
+			"items": {
+				"oneOf": [
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"type": {
+								"type": "string",
+								"const": "play"
+							},
+							"clipId": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"next": {
+								"anyOf": [
+									{
+										"type": "string",
+										"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+									},
+									{
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"when": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"key": {
+																	"type": "string",
+																	"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																},
+																"op": {
+																	"type": "string",
+																	"enum": [
+																		"eq",
+																		"neq",
+																		"gt",
+																		"gte",
+																		"lt",
+																		"lte"
+																	]
+																},
+																"value": {
+																	"anyOf": [
+																		{
+																			"type": "string",
+																			"maxLength": 64
+																		},
+																		{
+																			"type": "number"
+																		},
+																		{
+																			"type": "boolean"
+																		}
+																	]
+																}
+															},
+															"required": [
+																"key",
+																"op",
+																"value"
+															],
+															"additionalProperties": false
+														},
+														{
+															"minItems": 1,
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"key": {
+																		"type": "string",
+																		"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																	},
+																	"op": {
+																		"type": "string",
+																		"enum": [
+																			"eq",
+																			"neq",
+																			"gt",
+																			"gte",
+																			"lt",
+																			"lte"
+																		]
+																	},
+																	"value": {
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 64
+																			},
+																			{
+																				"type": "number"
+																			},
+																			{
+																				"type": "boolean"
+																			}
+																		]
+																	}
+																},
+																"required": [
+																	"key",
+																	"op",
+																	"value"
+																],
+																"additionalProperties": false
+															}
+														}
+													]
+												},
+												"target": {
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												}
+											},
+											"required": [
+												"target"
+											],
+											"additionalProperties": false
+										}
+									}
+								]
+							}
+						},
+						"required": [
+							"id",
+							"type",
+							"clipId"
+						],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"type": {
+								"type": "string",
+								"const": "choice"
+							},
+							"clipId": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"options": {
+								"minItems": 2,
+								"maxItems": 3,
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string",
+											"minLength": 1,
+											"maxLength": 40
+										},
+										"target": {
+											"anyOf": [
+												{
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												},
+												{
+													"minItems": 1,
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"when": {
+																"anyOf": [
+																	{
+																		"type": "object",
+																		"properties": {
+																			"key": {
+																				"type": "string",
+																				"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																			},
+																			"op": {
+																				"type": "string",
+																				"enum": [
+																					"eq",
+																					"neq",
+																					"gt",
+																					"gte",
+																					"lt",
+																					"lte"
+																				]
+																			},
+																			"value": {
+																				"anyOf": [
+																					{
+																						"type": "string",
+																						"maxLength": 64
+																					},
+																					{
+																						"type": "number"
+																					},
+																					{
+																						"type": "boolean"
+																					}
+																				]
+																			}
+																		},
+																		"required": [
+																			"key",
+																			"op",
+																			"value"
+																		],
+																		"additionalProperties": false
+																	},
+																	{
+																		"minItems": 1,
+																		"type": "array",
+																		"items": {
+																			"type": "object",
+																			"properties": {
+																				"key": {
+																					"type": "string",
+																					"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																				},
+																				"op": {
+																					"type": "string",
+																					"enum": [
+																						"eq",
+																						"neq",
+																						"gt",
+																						"gte",
+																						"lt",
+																						"lte"
+																					]
+																				},
+																				"value": {
+																					"anyOf": [
+																						{
+																							"type": "string",
+																							"maxLength": 64
+																						},
+																						{
+																							"type": "number"
+																						},
+																						{
+																							"type": "boolean"
+																						}
+																					]
+																				}
+																			},
+																			"required": [
+																				"key",
+																				"op",
+																				"value"
+																			],
+																			"additionalProperties": false
+																		}
+																	}
+																]
+															},
+															"target": {
+																"type": "string",
+																"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+															}
+														},
+														"required": [
+															"target"
+														],
+														"additionalProperties": false
+													}
+												}
+											]
+										},
+										"set": {
+											"type": "object",
+											"propertyNames": {
+												"type": "string",
+												"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+											},
+											"additionalProperties": {
+												"anyOf": [
+													{
+														"type": "string",
+														"maxLength": 64
+													},
+													{
+														"type": "number"
+													},
+													{
+														"type": "boolean"
+													}
+												]
+											}
+										}
+									},
+									"required": [
+										"label",
+										"target"
+									],
+									"additionalProperties": false
+								}
+							},
+							"timeoutMs": {
+								"type": "integer",
+								"minimum": 1000,
+								"maximum": 600000
+							},
+							"defaultTarget": {
+								"anyOf": [
+									{
+										"type": "string",
+										"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+									},
+									{
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"when": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"key": {
+																	"type": "string",
+																	"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																},
+																"op": {
+																	"type": "string",
+																	"enum": [
+																		"eq",
+																		"neq",
+																		"gt",
+																		"gte",
+																		"lt",
+																		"lte"
+																	]
+																},
+																"value": {
+																	"anyOf": [
+																		{
+																			"type": "string",
+																			"maxLength": 64
+																		},
+																		{
+																			"type": "number"
+																		},
+																		{
+																			"type": "boolean"
+																		}
+																	]
+																}
+															},
+															"required": [
+																"key",
+																"op",
+																"value"
+															],
+															"additionalProperties": false
+														},
+														{
+															"minItems": 1,
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"key": {
+																		"type": "string",
+																		"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																	},
+																	"op": {
+																		"type": "string",
+																		"enum": [
+																			"eq",
+																			"neq",
+																			"gt",
+																			"gte",
+																			"lt",
+																			"lte"
+																		]
+																	},
+																	"value": {
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 64
+																			},
+																			{
+																				"type": "number"
+																			},
+																			{
+																				"type": "boolean"
+																			}
+																		]
+																	}
+																},
+																"required": [
+																	"key",
+																	"op",
+																	"value"
+																],
+																"additionalProperties": false
+															}
+														}
+													]
+												},
+												"target": {
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												}
+											},
+											"required": [
+												"target"
+											],
+											"additionalProperties": false
+										}
+									}
+								]
+							}
+						},
+						"required": [
+							"id",
+							"type",
+							"clipId",
+							"options"
+						],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"type": {
+								"type": "string",
+								"const": "timer"
+							},
+							"clipId": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"timeoutMs": {
+								"type": "integer",
+								"minimum": 1000,
+								"maximum": 600000
+							},
+							"defaultTarget": {
+								"anyOf": [
+									{
+										"type": "string",
+										"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+									},
+									{
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"when": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"key": {
+																	"type": "string",
+																	"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																},
+																"op": {
+																	"type": "string",
+																	"enum": [
+																		"eq",
+																		"neq",
+																		"gt",
+																		"gte",
+																		"lt",
+																		"lte"
+																	]
+																},
+																"value": {
+																	"anyOf": [
+																		{
+																			"type": "string",
+																			"maxLength": 64
+																		},
+																		{
+																			"type": "number"
+																		},
+																		{
+																			"type": "boolean"
+																		}
+																	]
+																}
+															},
+															"required": [
+																"key",
+																"op",
+																"value"
+															],
+															"additionalProperties": false
+														},
+														{
+															"minItems": 1,
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"key": {
+																		"type": "string",
+																		"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																	},
+																	"op": {
+																		"type": "string",
+																		"enum": [
+																			"eq",
+																			"neq",
+																			"gt",
+																			"gte",
+																			"lt",
+																			"lte"
+																		]
+																	},
+																	"value": {
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 64
+																			},
+																			{
+																				"type": "number"
+																			},
+																			{
+																				"type": "boolean"
+																			}
+																		]
+																	}
+																},
+																"required": [
+																	"key",
+																	"op",
+																	"value"
+																],
+																"additionalProperties": false
+															}
+														}
+													]
+												},
+												"target": {
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												}
+											},
+											"required": [
+												"target"
+											],
+											"additionalProperties": false
+										}
+									}
+								]
+							},
+							"next": {
+								"anyOf": [
+									{
+										"type": "string",
+										"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+									},
+									{
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"when": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"key": {
+																	"type": "string",
+																	"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																},
+																"op": {
+																	"type": "string",
+																	"enum": [
+																		"eq",
+																		"neq",
+																		"gt",
+																		"gte",
+																		"lt",
+																		"lte"
+																	]
+																},
+																"value": {
+																	"anyOf": [
+																		{
+																			"type": "string",
+																			"maxLength": 64
+																		},
+																		{
+																			"type": "number"
+																		},
+																		{
+																			"type": "boolean"
+																		}
+																	]
+																}
+															},
+															"required": [
+																"key",
+																"op",
+																"value"
+															],
+															"additionalProperties": false
+														},
+														{
+															"minItems": 1,
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"key": {
+																		"type": "string",
+																		"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																	},
+																	"op": {
+																		"type": "string",
+																		"enum": [
+																			"eq",
+																			"neq",
+																			"gt",
+																			"gte",
+																			"lt",
+																			"lte"
+																		]
+																	},
+																	"value": {
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 64
+																			},
+																			{
+																				"type": "number"
+																			},
+																			{
+																				"type": "boolean"
+																			}
+																		]
+																	}
+																},
+																"required": [
+																	"key",
+																	"op",
+																	"value"
+																],
+																"additionalProperties": false
+															}
+														}
+													]
+												},
+												"target": {
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												}
+											},
+											"required": [
+												"target"
+											],
+											"additionalProperties": false
+										}
+									}
+								]
+							}
+						},
+						"required": [
+							"id",
+							"type",
+							"clipId",
+							"timeoutMs",
+							"defaultTarget"
+						],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"type": {
+								"type": "string",
+								"const": "loop"
+							},
+							"clipId": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"next": {
+								"anyOf": [
+									{
+										"type": "string",
+										"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+									},
+									{
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"when": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"key": {
+																	"type": "string",
+																	"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																},
+																"op": {
+																	"type": "string",
+																	"enum": [
+																		"eq",
+																		"neq",
+																		"gt",
+																		"gte",
+																		"lt",
+																		"lte"
+																	]
+																},
+																"value": {
+																	"anyOf": [
+																		{
+																			"type": "string",
+																			"maxLength": 64
+																		},
+																		{
+																			"type": "number"
+																		},
+																		{
+																			"type": "boolean"
+																		}
+																	]
+																}
+															},
+															"required": [
+																"key",
+																"op",
+																"value"
+															],
+															"additionalProperties": false
+														},
+														{
+															"minItems": 1,
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"key": {
+																		"type": "string",
+																		"pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+																	},
+																	"op": {
+																		"type": "string",
+																		"enum": [
+																			"eq",
+																			"neq",
+																			"gt",
+																			"gte",
+																			"lt",
+																			"lte"
+																		]
+																	},
+																	"value": {
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 64
+																			},
+																			{
+																				"type": "number"
+																			},
+																			{
+																				"type": "boolean"
+																			}
+																		]
+																	}
+																},
+																"required": [
+																	"key",
+																	"op",
+																	"value"
+																],
+																"additionalProperties": false
+															}
+														}
+													]
+												},
+												"target": {
+													"type": "string",
+													"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+												}
+											},
+											"required": [
+												"target"
+											],
+											"additionalProperties": false
+										}
+									}
+								]
+							}
+						},
+						"required": [
+							"id",
+							"type",
+							"clipId"
+						],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							},
+							"type": {
+								"type": "string",
+								"const": "end"
+							},
+							"clipId": {
+								"type": "string",
+								"pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+							}
+						},
+						"required": [
+							"id",
+							"type",
+							"clipId"
+						],
+						"additionalProperties": false
+					}
+				]
+			}
+		}
+	},
+	"required": [
+		"id",
+		"version",
+		"title",
+		"access",
+		"start",
+		"nodes"
+	],
+	"additionalProperties": false,
+	"$id": "session.schema.json",
+	"title": "Interactive audio session",
+	"description": "Generated from src/lib/engine/schema.ts by scripts/emit-session-schema.ts. Do not edit. Graph rules (reachability, dead ends, cycles, clips) are checked by scripts/validate-sessions.ts."
+}

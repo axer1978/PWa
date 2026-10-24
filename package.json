@@ -1,0 +1,65 @@
+{
+	"name": "pwa-audio",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=22.12"
+	},
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"start": "node --env-file-if-exists=.env infra/migrate.mjs && node --env-file-if-exists=.env build",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:e2e": "playwright test",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.development.local infra/migrate.mjs",
+		"geoip:fetch": "bash scripts/fetch-geoip.sh",
+		"check:banned": "tsx scripts/check-banned-deps.ts",
+		"validate:sessions": "tsx scripts/validate-sessions.ts",
+		"sessions:schema": "tsx scripts/emit-session-schema.ts",
+		"audio:placeholder": "bash scripts/make-placeholder-audio.sh"
+	},
+	"overrides": {
+		"cookie": "^0.7.2"
+	},
+	"dependencies": {
+		"drizzle-orm": "0.45.4",
+		"maxmind": "5.0.7",
+		"nodemailer": "10.1.7",
+		"postgres": "3.4.9",
+		"zod": "4.6.7"
+	},
+	"devDependencies": {
+		"@electric-sql/pglite": "0.5.10",
+		"@electric-sql/pglite-socket": "0.2.13",
+		"@eslint/js": "10.0.1",
+		"@fontsource-variable/instrument-sans": "5.3.0",
+		"@fontsource/instrument-serif": "5.3.0",
+		"@playwright/test": "1.64.1",
+		"@sveltejs/adapter-node": "5.5.7",
+		"@sveltejs/kit": "2.70.3",
+		"@sveltejs/vite-plugin-svelte": "7.3.1",
+		"@types/node": "24.19.2",
+		"drizzle-kit": "0.31.11",
+		"eslint": "10.13.0",
+		"eslint-config-prettier": "10.1.8",
+		"eslint-plugin-svelte": "3.23.1",
+		"globals": "17.13.0",
+		"prettier": "3.9.10",
+		"prettier-plugin-svelte": "4.1.1",
+		"svelte": "5.57.2",
+		"svelte-check": "4.7.7",
+		"tsx": "4.23.15",
+		"typescript": "6.0.3",
+		"typescript-eslint": "8.72.0",
+		"vite": "8.3.4",
+		"vitest": "5.0.5"
+	}
+}

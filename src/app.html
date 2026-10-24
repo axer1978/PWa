@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<!-- same-origin, not no-referrer: nothing is sent to other sites, but
+		     no-referrer makes browsers send "Origin: null" on form posts, which
+		     SvelteKit's CSRF check (rightly) rejects. See ASSUMPTIONS.md A-16. -->
+		<meta name="referrer" content="same-origin" />
+		<meta name="theme-color" content="#0b0b0d" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="tap">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

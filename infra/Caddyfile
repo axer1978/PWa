@@ -1,0 +1,30 @@
+# DOMAIN=localhost gives Caddy's internal CA (dev); a real domain gets
+# Let's Encrypt certificates automatically.
+{$DOMAIN:localhost} {
+	encode zstd gzip
+
+	# The app trusts a country header only from infrastructure we control. With no
+	# CDN in front of Caddy, strip any client-supplied copy so it can't be spoofed;
+	# the app then falls back to its local GeoIP lookup.
+	request_header -{$GEO_COUNTRY_HEADER:X-Country-Code}
+
+	header {
+		# HSTS_MAX_AGE is 0 in dev so browsers don't pin localhost to https.
+		Strict-Transport-Security "max-age={$HSTS_MAX_AGE:0}; includeSubDomains"
+		# No referrer ever leaves the site. (no-referrer would make browsers send
+		# "Origin: null" on same-site form posts and break CSRF origin checks.)
+		Referrer-Policy "same-origin"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Cross-Origin-Opener-Policy "same-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+		-Server
+		-X-Powered-By
+	}
+
+	# CSP for HTML comes from SvelteKit (hash-based). Set a strict one only if the
+	# upstream response didn't carry its own (JSON, media, static files).
+	header ?Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+
+	reverse_proxy app:3000
+}

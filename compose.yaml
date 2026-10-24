@@ -1,0 +1,4 @@
+# Lets `docker compose up` work from the repo root. The real stack is in infra/.
+name: pwa-audio
+include:
+  - infra/docker-compose.yml

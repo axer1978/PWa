@@ -1,0 +1,70 @@
+# Single-VPS stack. Run from the repo root: `docker compose up` (root compose.yaml
+# includes this file; COMPOSE_PROFILES in .env picks dev or prod extras).
+#
+# Paths below are relative to infra/. Every service reads the root .env via
+# env_file; no ${VAR} interpolation is used in this file (see ASSUMPTIONS.md A-07).
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: ../.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      # Caddy is the only client; it overwrites X-Forwarded-For with the real peer.
+      ADDRESS_HEADER: X-Forwarded-For
+      XFF_DEPTH: '1'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../content:/app/content:ro
+      # scripts/fetch-geoip.sh writes the DB-IP Lite database here.
+      - ../data/geoip:/app/data/geoip:ro
+    ports:
+      # Loopback only: direct access for debugging, bypassing Caddy.
+      - '127.0.0.1:3000:3000'
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    env_file: ../.env
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  mailpit:
+    image: axllent/mailpit:v1.31
+    profiles: [dev]
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:8025:8025' # web UI + API
+      - '127.0.0.1:1025:1025' # SMTP
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

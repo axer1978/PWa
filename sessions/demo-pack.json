@@ -1,0 +1,28 @@
+{
+	"$schema": "./session.schema.json",
+	"id": "demo-pack",
+	"version": 1,
+	"title": "Demo session 3",
+	"summary": "Placeholder session with test tones. Unlocked by a subscription or the starter pack.",
+	"access": "paid",
+	"start": "intro",
+	"state": {},
+	"nodes": [
+		{ "id": "intro", "type": "play", "clipId": "demo-pack-intro", "next": "hold" },
+		{ "id": "hold", "type": "loop", "clipId": "demo-pack-hold", "next": "pick" },
+		{
+			"id": "pick",
+			"type": "choice",
+			"clipId": "demo-pack-pick",
+			"options": [
+				{ "label": "Path A", "target": "a" },
+				{ "label": "Path B", "target": "b" },
+				{ "label": "Path C", "target": "c" }
+			]
+		},
+		{ "id": "a", "type": "play", "clipId": "demo-pack-a", "next": "outro" },
+		{ "id": "b", "type": "play", "clipId": "demo-pack-b", "next": "outro" },
+		{ "id": "c", "type": "play", "clipId": "demo-pack-c", "next": "outro" },
+		{ "id": "outro", "type": "end", "clipId": "demo-pack-outro" }
+	]
+}

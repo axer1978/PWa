@@ -1,0 +1,19 @@
+{
+	"id": "dangling-target",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "pick",
+	"nodes": [
+		{
+			"id": "pick",
+			"type": "choice",
+			"clipId": "fx-pick",
+			"options": [
+				{ "label": "Path A", "target": "ghost" },
+				{ "label": "Path B", "target": "outro" }
+			]
+		},
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}

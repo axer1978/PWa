@@ -1,0 +1,30 @@
+{
+	"$comment": "Placeholder plans and prices. Edit here, not in code. Amounts are in minor units (cents).",
+	"currency": "EUR",
+	"plans": [
+		{
+			"id": "monthly",
+			"kind": "subscription",
+			"name": "Monthly",
+			"priceMinor": 999,
+			"interval": "month",
+			"description": "Every session. Billed monthly."
+		},
+		{
+			"id": "yearly",
+			"kind": "subscription",
+			"name": "Yearly",
+			"priceMinor": 7999,
+			"interval": "year",
+			"description": "Every session. Billed once a year."
+		},
+		{
+			"id": "starter-pack",
+			"kind": "pack",
+			"name": "Starter pack",
+			"priceMinor": 499,
+			"sessions": ["demo-pack"],
+			"description": "One payment. The sessions in the pack stay yours."
+		}
+	]
+}

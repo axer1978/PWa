@@ -1,0 +1,11 @@
+{
+	"id": "missing-start",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "nowhere",
+	"nodes": [
+		{ "id": "intro", "type": "play", "clipId": "fx-intro", "next": "outro" },
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}

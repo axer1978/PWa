@@ -1,0 +1,85 @@
+/* Design tokens. Source of truth: DESIGN.md. Components use these, never raw values.
+   tests/unit/design-tokens.test.ts checks the contrast pairs listed in DESIGN.md. */
+:root {
+	color-scheme: dark;
+
+	/* Colour: one dominant + one accent; the rest are tints/shades of those two. */
+	--color-dominant: #0b0b0d;
+	--color-accent: #e8b04b;
+
+	--color-surface: #141418;
+	--color-surface-raised: #1c1c21;
+	--color-fg: #ededf0;
+	--color-fg-muted: #a3a3ad;
+	--color-fg-subtle: #8a8a94;
+	--color-border-strong: #6e6e78;
+	--color-border: #2e2e35;
+	--color-accent-hover: #f0c46e;
+	--color-accent-pressed: #c99536;
+	--color-on-accent: #0b0b0d;
+
+	--dim-bg: #000000;
+	--dim-fg: #8c8c94;
+	--dim-accent: #a8803a;
+
+	/* Typography: two families. */
+	--font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+	--font-ui:
+		'Instrument Sans Variable', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+	--text-xs: 0.8125rem; /* 13 */
+	--lh-xs: 1rem;
+	--text-sm: 0.9375rem; /* 15 */
+	--lh-sm: 1.5rem;
+	--text-md: 1.0625rem; /* 17 */
+	--lh-md: 1.5rem;
+	--text-lg: 1.25rem; /* 20 */
+	--lh-lg: 2rem;
+	--text-xl: 2rem; /* 32 */
+	--lh-xl: 2.5rem;
+	--text-2xl: 3rem; /* 48 */
+	--lh-2xl: 3rem;
+	--text-3xl: 4rem; /* 64 */
+	--lh-3xl: 4rem;
+
+	--weight-body: 450;
+	--weight-strong: 600;
+	--tracking-label: 0.12em;
+
+	/* Spacing: 8px scale. */
+	--space-1: 8px;
+	--space-2: 16px;
+	--space-3: 24px;
+	--space-4: 32px;
+	--space-5: 40px;
+	--space-6: 48px;
+	--space-8: 64px;
+	--space-10: 80px;
+	--space-12: 96px;
+
+	/* Shape, motion, ergonomics. */
+	--radius: 2px;
+	--dur-fast: 160ms;
+	--dur-base: 320ms;
+	--dur-slow: 640ms;
+	--ease: cubic-bezier(0.2, 0, 0, 1);
+	--tap-min: 48px;
+	--tap-player: 72px;
+	--content-max: 560px;
+	--gutter: var(--space-2);
+	--focus-ring: 2px solid var(--color-accent);
+}
+
+@media (min-width: 600px) {
+	:root {
+		--gutter: var(--space-3);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--dur-fast: 0ms;
+		--dur-base: 0ms;
+		--dur-slow: 0ms;
+	}
+}

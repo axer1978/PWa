@@ -1,0 +1,36 @@
+node_modules
+/build
+/.svelte-kit
+/package
+.DS_Store
+Thumbs.db
+
+# Secrets: only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# Generated placeholder audio (scripts/make-placeholder-audio.sh) and real content
+/content/audio/*
+!/content/audio/.gitkeep
+
+# GeoIP databases are downloaded, not committed
+/data/geoip/*.mmdb
+
+# Dev/e2e email outboxes (EMAIL_TRANSPORT=outbox)
+/.outbox
+/.outbox-e2e
+
+# Test output
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+/coverage
+
+# Local backups and restore-test scratch
+/backups
+/infra/restore-test/.work
+
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

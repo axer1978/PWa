@@ -1,0 +1,12 @@
+{
+	"id": "unreachable",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "intro",
+	"nodes": [
+		{ "id": "intro", "type": "play", "clipId": "fx-intro", "next": "outro" },
+		{ "id": "orphan", "type": "play", "clipId": "fx-orphan", "next": "outro" },
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}

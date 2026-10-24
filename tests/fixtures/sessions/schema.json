@@ -1,0 +1,16 @@
+{
+	"id": "schema",
+	"version": 1,
+	"title": "Fixture",
+	"access": "free",
+	"start": "pick",
+	"nodes": [
+		{
+			"id": "pick",
+			"type": "choice",
+			"clipId": "fx-pick",
+			"options": [{ "label": "Only path", "target": "outro" }]
+		},
+		{ "id": "outro", "type": "end", "clipId": "fx-outro" }
+	]
+}
