@@ -21,6 +21,9 @@
 		<p class="label">Error {page.status}</p>
 		<h1>{copy.title}</h1>
 		<p class="body">{copy.body}</p>
+		{#if page.status >= 500 && page.error?.id}
+			<p class="ref">Reference: <code>{page.error.id}</code></p>
+		{/if}
 		<Button href="/" variant="secondary">Back to the start</Button>
 	</section>
 </PageShell>
@@ -33,6 +36,17 @@
 	}
 
 	.body {
+		color: var(--color-fg-muted);
+	}
+
+	.ref {
+		font-size: var(--text-sm);
+		line-height: var(--lh-sm);
+		color: var(--color-fg-subtle);
+	}
+
+	code {
+		font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 		color: var(--color-fg-muted);
 	}
 </style>

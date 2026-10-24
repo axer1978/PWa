@@ -2,7 +2,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { BRAND_NAME } from '$lib/brand';
+	import { BRAND_DESCRIPTION, BRAND_NAME } from '$lib/brand';
 
 	interface Props {
 		/** Shown in the tab title after the brand. */
@@ -10,14 +10,28 @@
 		signedIn?: boolean;
 		/** Hides the sign-in/account action (e.g. on the unavailable page). */
 		minimal?: boolean;
+		/** Meta description for search and link previews. Keep it SFW and neutral. */
+		description?: string;
 		children: Snippet;
 	}
 
-	let { title, signedIn = false, minimal = false, children }: Props = $props();
+	let {
+		title,
+		signedIn = false,
+		minimal = false,
+		description = BRAND_DESCRIPTION,
+		children
+	}: Props = $props();
+
+	let fullTitle = $derived(title ? `${title} · ${BRAND_NAME}` : BRAND_NAME);
 </script>
 
 <svelte:head>
-	<title>{title ? `${title} · ${BRAND_NAME}` : BRAND_NAME}</title>
+	<title>{fullTitle}</title>
+	<meta name="description" content={description} />
+	<meta property="og:title" content={fullTitle} />
+	<meta property="og:description" content={description} />
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>

@@ -9,7 +9,11 @@ declare global {
 			/** ISO 3166-1 alpha-2, when known. Set by the geo hook. */
 			country?: string;
 		}
-		// interface Error {}
+		interface Error {
+			message: string;
+			/** Reference shown on error pages and logged with 5xx errors (hooks.server.ts). */
+			id?: string;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}

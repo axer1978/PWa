@@ -24,7 +24,8 @@
 		"check:banned": "tsx scripts/check-banned-deps.ts",
 		"validate:sessions": "tsx scripts/validate-sessions.ts",
 		"sessions:schema": "tsx scripts/emit-session-schema.ts",
-		"audio:placeholder": "bash scripts/make-placeholder-audio.sh"
+		"audio:placeholder": "bash scripts/make-placeholder-audio.sh",
+		"check:sfw": "tsx scripts/check-sfw.ts"
 	},
 	"overrides": {
 		"cookie": "^0.7.2"

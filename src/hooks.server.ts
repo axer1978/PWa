@@ -1,4 +1,4 @@
-import type { ServerInit } from '@sveltejs/kit';
+import type { HandleServerError, ServerInit } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { geoPolicy } from '$lib/server/config/env-schema';
 import { getPlans } from '$lib/server/config/plans';
@@ -35,6 +35,20 @@ export const init: ServerInit = async () => {
 				`every visitor's country is unknown (policy: ${policy.unknown}). Run scripts/fetch-geoip.sh.`
 		);
 	}
+};
+
+/**
+ * Unexpected errors: log them with a reference id (path only: query strings can
+ * carry tokens) and show visitors a generic message plus the id, so support can
+ * find the log line without exposing internals.
+ */
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	const id = crypto.randomUUID().slice(0, 8);
+	if (status >= 500) {
+		console.error(`[error ${id}] ${event.request.method} ${event.url.pathname}`, error);
+		return { message: 'Something went wrong', id };
+	}
+	return { message, id };
 };
 
 export const handle = sequence(
