@@ -73,9 +73,11 @@ encode() {
 		m4a) codec=(-c:a aac -b:a 64k -movflags +faststart) ;;
 		esac
 		# Write to a temp name and rename, so a failed encode never leaves a partial clip.
-		ffmpeg -hide_banner -loglevel error -y \
+		# -nostdin (and </dev/null): ffmpeg otherwise reads stdin and swallows the
+		# rest of the clip list this loop is reading, garbling the remaining ids.
+		ffmpeg -nostdin -hide_banner -loglevel error -y \
 			-f lavfi -i "aevalsrc=exprs='$expr':s=48000:d=$dur" \
-			-af "$af" -ac 1 "${codec[@]}" "$out.tmp.$fmt"
+			-af "$af" -ac 1 "${codec[@]}" "$out.tmp.$fmt" </dev/null
 		mv "$out.tmp.$fmt" "$out"
 	done
 	echo "  $id ($type, ${freq} Hz)"

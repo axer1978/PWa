@@ -50,6 +50,13 @@ jobs:
           echo "all clips are mono 48 kHz Opus/AAC"
       - name: Validate sessions
         run: npm run validate:sessions
+      # Lets developers without ffmpeg (and the e2e job) use the generated clips.
+      - name: Upload placeholder audio
+        uses: actions/upload-artifact@v4
+        with:
+          name: placeholder-audio
+          path: content/audio/*
+          retention-days: 30
       - name: Build
         run: npm run build
 
@@ -63,6 +70,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Placeholder audio from the verify job
+        uses: actions/download-artifact@v4
+        with:
+          name: placeholder-audio
+          path: content/audio
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
       # Self-contained stack (PGlite + file outbox). Phase 6 adds a run against
